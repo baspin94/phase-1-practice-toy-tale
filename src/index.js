@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(toyData => toyData.forEach(toy => createToy(toy)));
 });
 
+// Build function to render toys in the toy collection
 const toyCollection = document.querySelector("#toy-collection");
-
 function createToy(toyObject) {
     //create/append card
     const toyCard = document.createElement("div");
@@ -64,11 +64,33 @@ function createToy(toyObject) {
         }, 
         body: JSON.stringify(
           {likes: numLikes += 1}
-        )
-        }
-      )
+        )})
       .then(response => response.json())
       .then(updatedToy => 
         toyLikes.textContent = updatedToy.likes + " Likes");
   });
 }
+
+//Allow Users to Submit New Toy
+const toyForm = document.querySelector(".add-toy-form");
+//add event listener to the form
+toyForm.addEventListener("submit", function(e) {
+  e.preventDefault();
+  const newToy = {
+    name: e.target.name.value,
+    image: e.target.image.value,
+    likes: 0,
+  }
+  // Post new toy to the server
+  fetch("http://localhost:3000/toys", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(newToy)
+  })
+  .then(response => response.json())
+  //Update DOM after server response ok
+  .then(updatedToy => createToy(updatedToy))
+  .then(toyForm.reset())
+});
